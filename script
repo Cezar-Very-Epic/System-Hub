@@ -1,0 +1,711 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/System-Hub-Roblox/System-Hub/main/Library'))()
+local RS = game:GetService("ReplicatedStorage")
+local OpenSelectedOnSpawn = false
+local OpenAllOnSpawn = false
+local LocalPlayerA = game.Players.LocalPlayer
+local char = LocalPlayerA.Character
+local DiscordCode = "KHFzJB5pja"
+
+local Window = Rayfield:CreateWindow({
+   Name = "Lucky Blocks Battlegrounds",
+   LoadingTitle = "System Hub",
+   LoadingSubtitle = "by System",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "System Hub Configurations LuckyBlocks", -- Create a custom folder for your hub/game
+      FileName = "System hub configurations"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = DiscordCode, -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+   },
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "System hub key system",
+      Subtitle = "Join the Discord for the key!",
+      Note = "https://discord.gg/KHFzJB5pja",
+      FileName = "System hub key! Key saves here! (!@$%@!X1@txwtrwXYV#YV#V#^Y}#^UY#)", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"https://pastebin.com/raw/E1x22jeF"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
+})
+
+local HomeTab = Window:CreateTab("Home", nil) -- Title, Image
+local HomeSection = HomeTab:CreateSection("Credits")
+
+local HomeCreditsParagraph = HomeTab:CreateParagraph({Title = "Credits", Content = "  All credits go to System for creating this script!"})
+
+local JoinDiscordParagraph = HomeTab:CreateParagraph({Title = "Please join discord server!", Content = "Join the discord server for updates, suggestions, support and key"})
+local JoinDiscordButton = HomeTab:CreateButton({
+   Name = "Join Discord Server",
+   Callback = function()
+       local request = http_request or (syn and syn.request) or (http and http.request)
+       if request then
+           request(
+               {
+                   Url = "http://127.0.0.1:6463/rpc?v=1",
+                   Method = "POST",
+                   Headers = {
+                       ["Content-Type"] = "application/json",
+                       ["Origin"] = "https://discord.com"
+                   },
+                   Body = game:GetService("HttpService"):JSONEncode(
+                       {
+                           cmd = "INVITE_BROWSER",
+                           args = {code = DiscordCode}, -- Change "saza" to ur code invite link server discord
+                           nonce = game:GetService("HttpService"):GenerateGUID(false)
+                       }
+                   )
+               }
+           )
+       end
+   end,
+})
+
+local OpeningCooldown = 0
+local HowManyIsAll = 200
+
+local MainTab = Window:CreateTab("Main", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("Open Blocks")
+local BlocksToOpen1 = {}
+local HowManyBlocksToOpen = 0
+local SelectBlocksDropDown = MainTab:CreateDropdown({
+   Name = "Select Blocks To Open",
+   Options = {"Lucky Blocks","Super Lucky Blocks", "Diamond Blocks", "Rainbow Blocks", "Galaxy Blocks"},
+   CurrentOption = {nil},
+   MultipleOptions = true,
+   Flag = "Blocks To Open", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Option)
+        BlocksToOpen1 = Option
+   end,
+})
+
+local HowManyBlocksInput = MainTab:CreateInput({
+   Name = "How many blocks to open",
+   PlaceholderText = "Number",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+       if tonumber(Text) then
+           HowManyBlocksToOpen= tonumber(Text)
+       end       
+   end,
+})
+
+local function OpeningBlocks(table, WhatType)
+    if WhatType == false then
+        for i = 1, HowManyBlocksToOpen do
+            if OpeningCooldown > 0 then
+                task.wait(OpeningCooldown)
+            end
+            for i, v in pairs(table) do
+
+                local TheEvent = RS:FindFirstChild(v)
+                if TheEvent then
+                    TheEvent:FireServer()
+                end
+            end
+    	end
+    else
+        for e = 1, HowManyIsAll do
+            if OpeningCooldown > 0 then
+                task.wait(OpeningCooldown)
+            end
+            for i, v in pairs(RS:GetChildren()) do
+                if v:IsA("RemoteEvent") then
+                    v:FireServer()
+                end
+            end
+        end
+    end
+end
+
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function()
+    if OpenSelectedOnSpawn == true then
+        local TheBlocksTable = {}
+        for i, v in pairs(BlocksToOpen1) do
+            if v == "Lucky Blocks" then
+                table.insert(TheBlocksTable, "SpawnLuckyBlock")
+            end
+            if v == "Super Lucky Blocks" then
+                table.insert(TheBlocksTable, "SpawnSuperBlock")
+            end
+            if v == "Diamond Blocks" then
+                table.insert(TheBlocksTable, "SpawnDiamondBlock")
+            end
+            if v == "Rainbow Blocks" then
+                table.insert(TheBlocksTable, "SpawnRainbowBlock")
+            end
+            if v == "Galaxy Blocks" then
+                table.insert(TheBlocksTable, "SpawnGalaxyBlock")
+            end
+        end
+        OpeningBlocks(TheBlocksTable, false)
+    end
+    if OpenAllOnSpawn == true then
+        OpeningBlocks(nil, true)
+    end
+end)
+
+local OpenSelectedButton = MainTab:CreateButton({
+   Name = "Open Selected Blocks",
+   Callback = function()
+        local TheBlocksTable = {}
+        for i, v in pairs(BlocksToOpen1) do
+            if v == "Lucky Blocks" then
+                table.insert(TheBlocksTable, "SpawnLuckyBlock")
+            end
+            if v == "Super Lucky Blocks" then
+                table.insert(TheBlocksTable, "SpawnSuperBlock")
+            end
+            if v == "Diamond Blocks" then
+                table.insert(TheBlocksTable, "SpawnDiamondBlock")
+            end
+            if v == "Rainbow Blocks" then
+                table.insert(TheBlocksTable, "SpawnRainbowBlock")
+            end
+            if v == "Galaxy Blocks" then
+                table.insert(TheBlocksTable, "SpawnGalaxyBlock")
+            end
+        end
+        OpeningBlocks(TheBlocksTable, false)
+   end,
+})
+
+local GetAllButton = MainTab:CreateButton({
+   Name = "Get All Items",
+   Callback = function()
+        OpeningBlocks(nil, true)
+   end,
+})
+
+local OpenSelectedOnSpawnToggle = MainTab:CreateToggle({
+   Name = "Open Selected On Spawn",
+   CurrentValue = false,
+   Flag = "Open Selected On Spawn a", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        OpenSelectedOnSpawn = Value
+   end,
+})
+
+local OpenAllOnSpawnToggle = MainTab:CreateToggle({
+   Name = "Open All Blocks On Spawn",
+   CurrentValue = false,
+   Flag = "Open All On Spawn a", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        OpenAllOnSpawn = Value
+   end,
+})
+
+local BetaSection = MainTab:CreateSection("Beta Features")
+local BetaLabel = MainTab:CreateLabel("The features below are in beta, they may have some erros.")
+
+local DupeToolsSection = MainTab:CreateSection("Dupe Tools")
+local DupeLabel = MainTab:CreateLabel("For some reason most of the tools cant be duped.")
+local function DupeTools(ToolName, Number)
+    if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(ToolName) or game:GetService("Players").LocalPlayer.Character:FindFirstChild(ToolName) then
+        if game:GetService("Players").LocalPlayer.Character:FindFirstChild(ToolName) then
+            game:GetService("Players").LocalPlayer.Character:FindFirstChild(ToolName).Parent = game:GetService("Players").LocalPlayer.Backpack
+        end
+        OpeningBlocks(nil, true)
+        task.wait(4)
+        local DupedTools = 0
+        while task.wait(0.1) do
+            for i, v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                if v.Name == ToolName then
+                    v.Parent = game:GetService("Players").LocalPlayer.Character
+                    if not v:FindFirstChild("Duped") then
+                        local Duped = Instance.new("BoolValue")
+                        Duped.Name = "Duped"
+                        Duped.Parent = v
+                        DupedTools += 1
+                    end
+                end
+            end
+            if DupedTools >= Number then
+                break
+            end
+        end
+    end
+end
+
+local HowManyToDupe = 0
+local HowManydupesInput = MainTab:CreateInput({
+   Name = "How many weaons to dupe",
+   PlaceholderText = "Number (under 15 to avoid bugs)",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+       if tonumber(Text) then
+           HowManyToDupe = tonumber(Text)
+       end       
+   end,
+})
+
+local ToolNameToDupe = nil
+local ToolNameInput = MainTab:CreateInput({
+   Name = "Enter exact tool name",
+   PlaceholderText = "Tool Name",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+        ToolNameToDupe = Text     
+   end,
+})
+
+local DupeInputButton = MainTab:CreateButton({
+   Name = "Dupe Tool. Use give all tools before you use this!",
+   Callback = function()
+        local TheTool = game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(ToolNameToDupe)
+        if TheTool then
+            DupeTools(ToolNameToDupe, HowManyToDupe)
+        end
+   end,
+})
+
+local DupeEquippedButton = MainTab:CreateButton({
+   Name = "Dupe Equipped Tool. Use give all tools before you use this!",
+   Callback = function()
+        local TheTool = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Tool")
+        if TheTool then
+            DupeTools(TheTool.Name, HowManyToDupe)
+        end
+   end,
+})
+
+local AntiBaseSection = MainTab:CreateSection("Anti Base ForceField")
+local Warning1 = MainTab:CreateLabel("This will make you able to go inside other people bases without getting teleported. ")
+local Warning2 = MainTab:CreateLabel("WARNING: You can not teleport while this is active. Also is very glitchy!")
+local AntiBaseShieldType = false
+
+local IsAntiShieldTrue = false
+
+local function AntiShield()
+    local camera = game.Workspace.CurrentCamera
+    local originalCharacterCFrame = char.PrimaryPart.CFrame
+    local originalCameraCFrame = camera.CFrame
+    while IsAntiShieldTrue == true do
+        task.wait()
+        if LocalPlayerA.PlayerGui:FindFirstChild("ForceFieldWarning") then
+            LocalPlayerA.PlayerGui.ForceFieldWarning:Destroy()
+        end
+        if char then
+        	char = LocalPlayerA.Character
+            local currentCharacterCFrame = char.PrimaryPart.CFrame
+            local positionDistance = (currentCharacterCFrame.Position - originalCharacterCFrame.Position).Magnitude
+            if positionDistance > 70 then
+                char:SetPrimaryPartCFrame(originalCharacterCFrame)
+                camera.CFrame = originalCameraCFrame
+            else
+                originalCharacterCFrame = currentCharacterCFrame
+                originalCameraCFrame = camera.CFrame
+            end
+        end
+    end
+end
+
+local Toggle = MainTab:CreateToggle({
+   Name = "Anti Base ForceField",
+   CurrentValue = false,
+   Flag = "Anti Base ForceField a", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        IsAntiShieldTrue = Value
+        AntiShield()
+   end,
+})
+
+local TeleportTab = Window:CreateTab("Teleport", nil) -- Title, Image
+local TheLocation = nil
+local TeleportAreasCFrames = {
+	["Pink Base"] = Vector3.new(-872.795166, 194.099884, 204.761139),
+	["Orange Base"] = Vector3.new(-872.795166, 194.099884, -23.2388611),
+	["Yellow Base"] = Vector3.new(-927.795166, 194.099884, -75.2388611), 
+	["Green Base"] = Vector3.new(-1155.79517, 194.099884, -75.2388611),
+	["Light Blue Base"] = Vector3.new(-1207.79517, 194.099884, -24.2388611),
+	["Dark Blue Base"] = Vector3.new(-1207.79517, 194.099884, 204.761139),
+	["Red Base"] = Vector3.new(-1155.79517, 194.099884, 253.761139), 
+	["Purple Base"] = Vector3.new(-926.795166, 194.099884, 253.761139),
+	Middle = Vector3.new(-1041.33972, 201.581329, 91.0250473),
+	["White Box"] = Vector3.new(-2017.93835, 208.172913, 458.793396),
+	["Your Base"] = game:GetService("Workspace"):WaitForChild(LocalPlayerA.Spawn.Value).SpawnLocation.CFrame.Position
+}
+
+local function TeleportToLocation(Option)
+    LocalPlayerA.Character:PivotTo(CFrame.new(TeleportAreasCFrames[Option]))
+end
+
+local TeleportDropDown = TeleportTab:CreateDropdown({
+   Name = "Select Location To Teleport",
+   Options = {"Middle", "White Box", "Your Base", "Pink Base","Orange Base", "Yellow Base", "Green Base", "Light Blue Base", "Dark Blue Base"},
+   CurrentOption = {"Your Base"},
+   MultipleOptions = false,
+   Flag = "Teleport Location", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Option)
+       TeleportLocation = Option[1]
+   end,
+})
+
+local TeleportButton = TeleportTab:CreateButton({
+   Name = "Teleport To Location",
+   Callback = function()
+        TeleportToLocation(TeleportLocation)
+   end,
+})
+
+local PlayerTab = Window:CreateTab("Player", nil) -- Title, Image
+
+local SpeedSlider = PlayerTab:CreateSlider({
+   Name = "Set Walkspeed",
+   Range = {0, 300},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Flag = nil, 
+   Callback = function(Value)
+       LocalPlayerA.Character.Humanoid.WalkSpeed = Value
+   end,
+})
+
+local JumpSlider = PlayerTab:CreateSlider({
+   Name = "Set Jump Power",
+   Range = {0, 300},
+   Increment = 1,
+   Suffix = "JumpPower",
+   CurrentValue = 50,
+   Flag = nil, 
+   Callback = function(Value)
+       LocalPlayerA.Character.Humanoid.JumpPower = Value
+   end,
+})
+
+local HipHeightSlider = PlayerTab:CreateSlider({
+   Name = "Set HipHeight",
+   Range = {0, 200},
+   Increment = 1,
+   Suffix = "HipHeight",
+   CurrentValue = LocalPlayerA.Character.Humanoid.HipHeight,
+   Flag = nil, 
+   Callback = function(Value)
+       LocalPlayerA.Character.Humanoid.HipHeight = Value
+   end,
+})
+
+local GravitySlider = PlayerTab:CreateSlider({
+   Name = "Set Gravity",
+   Range = {0, 600},
+   Increment = 1,
+   Suffix = "Gravity",
+   CurrentValue = math.floor(game:GetService("Workspace").Gravity),
+   Flag = nil, 
+   Callback = function(Value)
+       game:GetService("Workspace").Gravity = Value
+   end,
+})
+
+local InfiniteJumping = false
+
+game:GetService("UserInputService").jumpRequest:Connect(function()
+    if InfiniteJumping then
+        game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass"Humanoid":ChangeState("Jumping")
+    end
+end)
+
+local Toggle = PlayerTab:CreateToggle({
+   Name = "Infinite Jump",
+   CurrentValue = false,
+   Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       InfiniteJumping = Value
+   end,
+})
+
+
+local Noclipping = nil
+
+Clip = false
+local isnoclipping = false
+
+local function NoclipLoop()
+	if Clip == false and LocalPlayerA.Character ~= nil then
+		for _, child in pairs(LocalPlayerA.Character:GetDescendants()) do
+			if child:IsA("BasePart") and child.CanCollide == true then
+				child.CanCollide = false
+			end
+		end
+	end
+end
+
+local function UnNoClip()
+    Noclipping:Disconnect()
+end
+
+local Toggle = PlayerTab:CreateToggle({
+   Name = "Noclip (after turning off you need to jump!",
+   CurrentValue = false,
+   Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       isnoclipping = Value
+       if isnoclipping == true then
+            Clip = false
+            Noclipping = game:GetService("RunService").Stepped:Connect(NoclipLoop)
+       else
+           UnNoClip()
+           Clip = true
+       end
+   end,
+})
+
+local OthersTab = Window:CreateTab("Others", nil) -- Title, Image
+
+local TeleportService = game:GetService("TeleportService")
+local function RejoinNotify()
+    Rayfield:Notify({
+   Title = "Rejoining",
+   Content = "Rejoining, please wait!",
+   Duration = 6.5,
+   Image = nil,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+         print("The user tapped Okay!")
+      end
+   },
+},
+})
+end
+local RejoinButton = OthersTab:CreateButton({
+   Name = "Rejoin",
+   Callback = function()
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayerA)
+        RejoinNotify()
+   end,
+})
+
+local function ServerHopNotify()
+    Rayfield:Notify({
+   Title = "Serverhopping",
+   Content = "Joinng another server, please wait!",
+   Duration = 6.5,
+   Image = nil,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+      end
+   },
+},
+})
+end
+local function ServerHopFunction()
+    local PlaceID = game.PlaceId
+    local AllIDs = {}
+    local foundAnything = ""
+          local actualHour = os.date("!*t").hour
+          local Deleted = false
+          function TPReturner()
+              local Site;
+              if foundAnything == "" then
+                  Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+              else
+                  Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+              end
+              local ID = ""
+              if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+                  foundAnything = Site.nextPageCursor
+              end
+              local num = 0;
+              for i,v in pairs(Site.data) do
+                  local Possible = true
+                  ID = tostring(v.id)
+                  if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                      for _,Existing in pairs(AllIDs) do
+                          if num ~= 0 then
+                              if ID == tostring(Existing) then
+                                  Possible = false
+                              end
+                          else
+                              if tonumber(actualHour) ~= tonumber(Existing) then
+                                  local delFile = pcall(function()
+                                      -- delfile("NotSameServers.json")
+                                      AllIDs = {}
+                                      table.insert(AllIDs, actualHour)
+                                  end)
+                              end
+                          end
+                          num = num + 1
+                      end
+                      if Possible == true then
+                          table.insert(AllIDs, ID)
+                          wait()
+                          pcall(function()
+                              -- writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+                              wait()
+                              game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                          end)
+                          wait(4)
+                      end
+                  end
+              end
+          end
+ 
+          function Teleport()
+              while wait() do
+                  pcall(function()
+                      TPReturner()
+                      if foundAnything ~= "" then
+                          TPReturner()
+                      end
+                  end)
+              end
+          end
+ 
+          Teleport()
+end
+
+local ServerHopButton = OthersTab:CreateButton({
+   Name = "ServerHop",
+   Callback = function()
+        ServerHopFunction()
+        ServerHopNotify()
+   end,
+})
+
+local function AdminNotify()
+    Rayfield:Notify({
+   Title = "Infinite Yield",
+   Content = "Loaded Infnite Yield Admin!",
+   Duration = 6.5,
+   Image = nil,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Epic!",
+         Callback = function()
+      end
+   },
+},
+})
+end
+local InfniteYieldAdminButton = OthersTab:CreateButton({
+   Name = "Open Infinite Yield Admin",
+   Callback = function()
+        loadstring(game:HttpGet(("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"),true))()
+        AdminNotify()
+    end,
+})
+
+local function EspNotify()
+    Rayfield:Notify({
+   Title = "Esp",
+   Content = "Loading Esp, please wait!",
+   Duration = 6.5,
+   Image = nil,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+      end
+   },
+},
+})
+end  
+local EspButton = OthersTab:CreateButton({
+   Name = "Open Unnamed Esp",
+   Callback = function()
+        EspNotify()
+        pcall(function() loadstring(game:HttpGet('https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua'))() end)
+   end,
+})
+
+local function AfkNotify()
+    Rayfield:Notify({
+   Title = "Anti Afk",
+   Content = "Anti Afk! Now you can be afk and not get kicked!",
+   Duration = 6.5,
+   Image = nil,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "This is epic!!",
+         Callback = function()
+      end
+   },
+},
+})
+end        
+local function AntiAfk()
+    repeat
+        wait()
+    until game:IsLoaded()
+    wait()
+
+    if getconnections then
+        for _, v in next, getconnections(game:GetService("Players").LocalPlayer.Idled) do
+            v:Disable()
+        end
+    end
+
+    if not getconnections then
+        game:GetService("Players").LocalPlayer.Idled:connect(
+            function()
+                game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+            end)
+    print("poopy exploit")
+    end
+end
+
+local AntiAfkButton = OthersTab:CreateButton({
+   Name = "Anti Afk",
+   Callback = function()
+        AntiAfk()
+        AfkNotify()
+   end,
+})
+
+local function AnimationNotify()
+    Rayfield:Notify({
+   Title = "Animation Gui",
+   Content = "I was not able to make myself a good gui for this game so i got one from someone. It is not very good tho :(",
+   Duration = 6.5,
+   Image = nil,
+   Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+      end
+   },
+},
+})
+end
+
+local AnimationButton = OthersTab:CreateButton({
+   Name = "Open Energize Animation GUI",
+   Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/R1MgDiRX", true))()
+        AnimationNotify()
+   end,
+})
+
+local SettingsTab = Window:CreateTab("Settings", nil) -- Title, Image
+
+local HowManyIsAllSlider = SettingsTab:CreateSlider({
+   Name = "How many blocks = all items",
+   Range = {0, 300},
+   Increment = 1,
+   Suffix = "Blocks",
+   CurrentValue = 200,
+   Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       HowManyIsAll = Value
+   end,
+})
+
+local HowManyIsAllSlider = SettingsTab:CreateSlider({
+   Name = "How much to wait between opening blocks",
+   Range = {0, 300},
+   Increment = 1,
+   Suffix = "Miliseconds",
+   CurrentValue = 0,
+   Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+       OpeningCooldown = Value / 1000
+   end,
+})
