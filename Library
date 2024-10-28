@@ -113,7 +113,7 @@ local CoreGui = game:GetService("CoreGui")
 
 -- Interface Management
 local Rayfield = game:GetObjects("rbxassetid://10804731440")[1]
-
+Rayfield.Name = "System Hub"
 Rayfield.Enabled = false
 
 
@@ -578,7 +578,7 @@ function RayfieldLibrary:Notify(NotificationSettings)
 			end
 		end
 
-		if Rayfield.Name == "Rayfield" then
+		if Rayfield.Name == "System Hub" then
 			neon:BindFrame(Notification.BlurModule, {
 				Transparency = 0.98;
 				BrickColor = BrickColor.new("Institutional white");
