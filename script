@@ -1,3 +1,11 @@
+local ExecuteAgain = true -- keep false unless you want to edit the script
+
+if game.Workspace:FindFirstChild("SYSTEMHUB WORK NO DELETE!9432yt") then if not ExecuteAgain then warn("Script already running!!!") return end end
+
+local HackValueScriptStuff = Instance.new("BoolValue")
+HackValueScriptStuff.Name = "SYSTEMHUB WORK NO DELETE!9432yt"
+HackValueScriptStuff.Parent = game.Workspace
+
 local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/System-Hub-Roblox/System-Hub/main/Library'))()
 local RS = game:GetService("ReplicatedStorage")
 local OpenSelectedOnSpawn = false
@@ -5,6 +13,7 @@ local OpenAllOnSpawn = false
 local LocalPlayerA = game.Players.LocalPlayer
 local char = LocalPlayerA.Character
 local DiscordCode = "KHFzJB5pja"
+
 
 local Window = Rayfield:CreateWindow({
    Name = "Lucky Blocks Battlegrounds",
@@ -219,7 +228,7 @@ local function DupeTools(ToolName, Number)
                         local Duped = Instance.new("BoolValue")
                         Duped.Name = "Duped"
                         Duped.Parent = v
-                        DupedTools += 1
+                        DupedTools = DupedTools + 1
                     end
                 end
             end
@@ -280,8 +289,9 @@ local AntiBaseShieldType = false
 local IsAntiShieldTrue = false
 
 local function AntiShield()
+    char = LocalPlayerA.Character
     local camera = game.Workspace.CurrentCamera
-    local originalCharacterCFrame = char.PrimaryPart.CFrame
+    local originalCharacterCFrame = char.HumanoidRootPart.CFrame
     local originalCameraCFrame = camera.CFrame
     while IsAntiShieldTrue == true do
         task.wait()
@@ -293,8 +303,10 @@ local function AntiShield()
             local currentCharacterCFrame = char.PrimaryPart.CFrame
             local positionDistance = (currentCharacterCFrame.Position - originalCharacterCFrame.Position).Magnitude
             if positionDistance > 70 then
-                char:SetPrimaryPartCFrame(originalCharacterCFrame)
+                char.HumanoidRootPart.CFrame = originalCharacterCFrame
+                camera.CameraType = Enum.CameraType.Scriptable
                 camera.CFrame = originalCameraCFrame
+                camera.CameraType = Enum.CameraType.Custom
             else
                 originalCharacterCFrame = currentCharacterCFrame
                 originalCameraCFrame = camera.CFrame
@@ -313,6 +325,190 @@ local Toggle = MainTab:CreateToggle({
    end,
 })
 
+local FunTrollSection = MainTab:CreateSection("Funny (experimental)")
+print("Runs")
+
+local HowManyToolsMachinegun = 2
+local MachineGunCooldown = 0.05
+
+local HowManyClonesSlider = MainTab:CreateSlider({
+    Name = "How many tools (Better to stay under 40)",
+    Range = {2, 200},
+    Increment = 1,
+    Suffix = "Tools",
+    CurrentValue = 5,
+    Flag = "CloneToolAmount", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        HowManyToolsMachinegun = Value
+    end,
+ })
+
+ local MachinegunCooldownSlider = MainTab:CreateSlider({
+    Name = "Machinegun Cooldown",
+    Range = {0.5, 1000},
+    Increment = 0.5,
+    Suffix = "Miliseconds",
+    CurrentValue = 50,
+    Flag = "MachineGunCooldown", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        MachineGunCooldown = Value / 1000
+    end,
+ })
+
+local uis = game:GetService("UserInputService")
+
+local keepEquipped = false
+
+local function GiveMachineGun(variant)
+    print("Inside")
+    local CurrentTool = char:FindFirstChildOfClass("Tool")
+    for a, tool in LocalPlayerA.Character:GetDescendants() do
+        if tool:IsA("Tool") then
+            CurrentTool = tool
+        end
+    end
+    if not CurrentTool then warn("No tool equipped") return end
+    local TheToolName = CurrentTool.Name
+    local GunsNumber = HowManyToolsMachinegun
+    local Cooldown = MachineGunCooldown
+
+    OpeningBlocks(nil, true)
+    task.wait(6)
+    local num = 0
+    local TheGun = LocalPlayerA.Backpack:FindFirstChild(TheToolName)
+    for a, tool in LocalPlayerA.Backpack:GetDescendants() do
+        if tool:IsA("Tool") and tool.Name == TheToolName then
+            TheGun = tool
+        end
+    end
+    if not TheGun then
+        print("Gun not found")
+        repeat
+             print("Searching for gun:", num) 
+             task.wait(6) 
+             OpeningBlocks(nil, true)
+             TheGun = LocalPlayerA.Backpack:FindFirstChild(TheToolName) 
+             if num > 3 then
+                print("Weapon not found. Reset and try again!") 
+                break
+             end
+             if TheGun then break end
+              num = num + 1 
+              for a, tool in LocalPlayerA.Backpack:GetDescendants() do
+                if tool:IsA("Tool") and tool.Name == TheToolName then
+                    TheGun = tool
+                end
+            end
+            until TheGun
+        print("Gun found!")
+    end
+    local TheGuns = {TheGun}
+    for a, tool in LocalPlayerA.Backpack:GetChildren() do
+        if tool ~= TheGun and tool.Name == TheToolName then
+            table.insert(TheGuns, tool)
+            tool.Parent = LocalPlayerA.Character
+        end
+    end
+    TheGun.Parent = LocalPlayerA.Character
+    local connection
+    connection = LocalPlayerA.Backpack.ChildAdded:Connect(function(child)
+        if child.Name == TheToolName then
+            task.wait(0.1)
+            table.insert(TheGuns, child)
+            child.Parent = LocalPlayerA.Character
+        end
+    end)
+    local looping = true
+    task.spawn(function()
+        task.wait(20)
+        looping = false
+    end)
+    while #TheGuns < GunsNumber and looping do
+        task.wait(1)
+        OpeningBlocks(nil, true)
+    end
+    connection:Disconnect()
+
+    local NewGun = Instance.new("Tool")
+    NewGun.Name = TheToolName
+    NewGun.Parent = LocalPlayerA.Character
+    NewGun.RequiresHandle = false
+    local IsShooting = false
+    local IsThisEquipped = false
+    task.wait(0.5)
+    for i, v in TheGuns do
+        v.Parent = LocalPlayerA.Backpack
+    end
+    uis.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and IsThisEquipped then
+            IsShooting = true
+            while IsShooting and IsThisEquipped do
+                for i, LaserGun in TheGuns do
+                    LaserGun.Parent = LocalPlayerA.Character
+                    local remote 
+                    for a, remoteEventInLaser in LaserGun:GetDescendants() do
+                        if remoteEventInLaser:IsA("RemoteEvent") then
+                            remote = remoteEventInLaser
+                        end
+                    end
+                    LaserGun:Activate()
+                    if remote then
+                        if variant == 1 then
+                            remote:FireServer(LocalPlayerA:GetMouse().hit.p)
+                        else
+                            remote:FireServer(LocalPlayerA:GetMouse().hit)
+                        end
+                    end
+                    task.wait(Cooldown)
+                    if not keepEquipped then
+                        LaserGun.Parent = LocalPlayerA.Backpack
+                    end
+                    if not IsThisEquipped then break end
+                end
+            end
+        end
+    end)
+    
+    uis.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and IsThisEquipped then
+            IsShooting = false
+        end
+    end)
+
+    NewGun.Equipped:Connect(function()
+        IsThisEquipped = true
+    end)
+
+    NewGun.Unequipped:Connect(function()
+        IsThisEquipped = false
+    end)
+end
+
+local EquipToggle = MainTab:CreateToggle({
+    Name = "Keep Equipped (usually keep off)",
+    CurrentValue = false,
+    Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        keepEquipped = Value
+    end,
+ })
+
+local LaserMachineGun = MainTab:CreateButton({
+    Name = "Give Machinegun of equipped tool variant 1",
+    Callback = function()
+        GiveMachineGun(1)
+    end,
+ })
+
+local LaserMachineGun = MainTab:CreateButton({
+    Name = "Give Machinegun of equipped tool variant 2",
+    Callback = function()
+        GiveMachineGun(2)
+    end,
+ })
+
+
+
 local TeleportTab = Window:CreateTab("Teleport", nil) -- Title, Image
 local TheLocation = nil
 local TeleportAreasCFrames = {
@@ -330,8 +526,10 @@ local TeleportAreasCFrames = {
 }
 
 local function TeleportToLocation(Option)
-    LocalPlayerA.Character:PivotTo(CFrame.new(TeleportAreasCFrames[Option]))
+    LocalPlayerA.Character.HumanoidRootPart.CFrame = CFrame.new(TeleportAreasCFrames[Option])
 end
+
+local TeleportLocation = nil
 
 local TeleportDropDown = TeleportTab:CreateDropdown({
    Name = "Select Location To Teleport",
@@ -439,7 +637,7 @@ local function UnNoClip()
 end
 
 local Toggle = PlayerTab:CreateToggle({
-   Name = "Noclip (after turning off you need to jump!",
+   Name = "Noclip (after turning off you need to jump)",
    CurrentValue = false,
    Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
@@ -453,6 +651,43 @@ local Toggle = PlayerTab:CreateToggle({
        end
    end,
 })
+local AntiRangeSwordThing = false
+local function LookSoundThingRedSword(TheSoulSound)
+    if TheSoulSound.Name == "Consume" and TheSoulSound:IsA("Sound") and not TheSoulSound:FindFirstChild("AlreadyDetected") then
+        local AlreadyDetected = Instance.new("BoolValue")
+        AlreadyDetected.Name = "AlreadyDetected"
+        AlreadyDetected.Parent = TheSoulSound
+        TheSoulSound.Played:Connect(function()
+            if AntiRangeSwordThing == true then
+                local char = LocalPlayerA.Character  or LocalPlayerA.CharacterAdded:Wait()
+                
+                char:PivotTo(CFrame.new(game:GetService("Workspace"):WaitForChild(LocalPlayerA.Spawn.Value).SpawnLocation.CFrame.Position + Vector3.new(0,10,0)))
+            end
+        end)
+    end
+end
+
+Workspace.DescendantAdded:Connect(function(TheSoulSound)
+    LookSoundThingRedSword(TheSoulSound)
+end)
+
+for i,v in game.Workspace:GetDescendants() do
+    LookSoundThingRedSword(v)
+end
+
+for i, v in game.Players:GetDescendants() do
+    LookSoundThingRedSword(v)
+end
+
+
+ local AntiRedSword = PlayerTab:CreateToggle({
+    Name = "Anti Red Sword (tp you to base when someone uses it)",
+    CurrentValue = false,
+    Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        AntiRangeSwordThing = Value
+    end,
+ })
 
 local OthersTab = Window:CreateTab("Others", nil) -- Title, Image
 
@@ -549,7 +784,7 @@ local function ServerHopFunction()
           end
  
           function Teleport()
-              while wait() do
+              while task.wait() do
                   pcall(function()
                       TPReturner()
                       if foundAnything ~= "" then
@@ -692,20 +927,27 @@ local HowManyIsAllSlider = SettingsTab:CreateSlider({
    Increment = 1,
    Suffix = "Blocks",
    CurrentValue = 200,
-   Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Flag = "AllBlockAmountSettinglol", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
        HowManyIsAll = Value
    end,
 })
 
-local HowManyIsAllSlider = SettingsTab:CreateSlider({
+local HowMuchTimeWait = SettingsTab:CreateSlider({
    Name = "How much to wait between opening blocks",
    Range = {0, 300},
    Increment = 1,
    Suffix = "Miliseconds",
    CurrentValue = 0,
-   Flag = nil, -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Flag = "WaitTimeSettinglol", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
    Callback = function(Value)
        OpeningCooldown = Value / 1000
    end,
 })
+
+local AnimationButton = SettingsTab:CreateButton({
+    Name = "Destroy the gui",
+    Callback = function()
+        Rayfield:Destroy()
+    end,
+ })
