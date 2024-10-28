@@ -8,11 +8,11 @@ If there is any problem i will replace some parts of the scrpt so is differite!
 
 
 
-local Release = "Beta 8"
+local Release = "Beta 9"
 local NotificationDuration = 6.5
-local RayfieldFolder = "Rayfield"
+local RayfieldFolder = "SystemHub"
 local ConfigurationFolder = RayfieldFolder.."/Configurations"
-local ConfigurationExtension = ".rfld"
+local ConfigurationExtension = ".system"
 
 
 
