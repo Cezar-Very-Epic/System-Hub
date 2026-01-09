@@ -40,21 +40,24 @@ local function ToggleMoney(value)
 			local MaxEarn = 50000
 			local mainGui = LocalPlayer.PlayerGui:FindFirstChild("Main")
 			if mainGui then
-				local frame = mainGui:FindFirstChild("Frame")
-				if frame then
-					local VA = frame:FindFirstChild("VA")
-					if VA then
-						local splitText = string.split(VA.Text, "/")
-						MaxEarn = tonumber(splitText[2]) or 50000
-					end
-				end
+				for _, child in mainGui:GetChildren() do
+                    if child.Name ~= "Frame" then continue end
+                    local Percent = child:FindFirstChild("Percent")
+                    if Percent then
+                        local VA = Percent:FindFirstChild("VA")
+                        if VA then
+                            local splitText = string.split(VA.Text, "/")
+                            MaxEarn = tonumber(splitText[2]) or 50000
+                        end
+                    end
+                end
 			end
 			task.spawn(function()
 				if GivingMoney then
 					MainF:InvokeServer("earned", MaxEarn)
 				end
 			end)
-			task.wait()
+			task.wait(0.1)
 		end
 	end)
 end
@@ -175,7 +178,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Build a Stone Miner! ⚒️",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "Loading script",
+   LoadingTitle = "Loading miner",
    LoadingSubtitle = "by System",
    ShowText = "Rayfield", -- for mobile users to unhide rayfield, change if you'd like
    Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
