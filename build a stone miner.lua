@@ -11,6 +11,7 @@ local GivingTickets = false
 local SpinningWheel = false
 local GivingChests = false
 local OpeningChests = false
+local AutoPlotting = false
 local GivingOres = {Cobalt = false, Diamond = false, Gold = false, Herostone = false, Platinum = false, Pyroium = false, Voidium = false, Uranium = false}
 
 local function ToggleTickets(value)
@@ -160,6 +161,15 @@ local function ToggleOpenChests(value)
 	end)
 end
 
+local function ToggleAutoPlot(Value)
+    AutoPlotting = Value
+	if not Value then return end
+	while AutoPlotting do
+		MainR:FireServer("plotdone")
+		task.wait(0.05)
+	end
+end
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -208,36 +218,44 @@ local Paragraph = Tab2:CreateParagraph({Title = "How to get more money", Content
 Tab2:CreateToggle({
 	Name = "Give Money",
 	CurrentValue = false,
-	Flag = "MoneyToggle",
+	Flag = "",
 	Callback = ToggleMoney
 })
 
 Tab2:CreateToggle({
 	Name = "Give Tickets",
 	CurrentValue = false,
-	Flag = "TicketToggle",
+	Flag = "",
 	Callback = ToggleTickets
 })
 
 Tab2:CreateToggle({
 	Name = "Wheel Spin",
 	CurrentValue = false,
-	Flag = "WheelToggle",
+	Flag = "",
 	Callback = ToggleWheelSpin
 })
 
 Tab2:CreateToggle({
 	Name = "Give Chests",
 	CurrentValue = false,
-	Flag = "ChestToggle",
+	Flag = "",
 	Callback = ToggleChests
 })
 
 Tab2:CreateToggle({
 	Name = "Open Chests",
 	CurrentValue = false,
-	Flag = "OpenToggle",
+	Flag = "",
 	Callback = ToggleOpenChests
+})
+
+local Paragraph = Tab2:CreateParagraph({Title = "How does this work", Content = "Does the same as clearing the plot. Keep this on a bit then you can use the money generator to get tons more money."})
+Tab2:CreateToggle({
+	Name = "Autoplot",
+	CurrentValue = false,
+	Flag = "",
+	Callback = ToggleAutoPlot
 })
 
 Tab2:CreateDropdown({
@@ -268,3 +286,6 @@ local Button = Tab2:CreateButton({
         loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
    end,
 })
+
+
+
